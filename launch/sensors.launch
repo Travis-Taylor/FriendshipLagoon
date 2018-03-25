@@ -1,0 +1,12 @@
+<launch>
+
+<!-- All sensors for truck -->
+
+	<include file="$(find super_cool_robot)/launch/imu.launch"/>
+		<param name="microstrain_3dmgx2_node/port" type="string" value="/dev/ttyUSB1"/>
+	<include file="$(find super_cool_robot)/launch/gps.launch"/>
+		<param name="gpsfix_node/port" type="string" value="/dev/ttyUSB0"/>
+
+</launch>
+
+
