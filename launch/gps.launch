@@ -1,0 +1,8 @@
+<launch>
+
+<!-- gps -->
+	<param name="port" value="/dev/ttyUSB0" />
+	<node pkg="nmea_navsat_driver" type="nmea_serial_driver" name="gpsfix">
+	</node>
+
+</launch>
