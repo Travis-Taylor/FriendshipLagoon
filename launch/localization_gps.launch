@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<!--
+  launch an EKF to combine the GPS data with the odometry to 
+  give the odom/ekf transform
+-->
+<launch>
+	<arg name="name"/>
+  <node pkg="robot_localization" 
+    type="ekf_localization_node" 
+    name="$(arg name)_MAP">
+
+  <param name="odom0" value="/$(arg name)/odom/filtered" />
+  <param name="odom1" value="/$(arg name)/odom/navsat" />
+
+  <param name="imu0" value="/$(arg name)/imu" />
+  <param name="two_d_mode" value="true" />
+  <param name="map_frame" value="map" />
+  <param name="odom_frame" value="odom" />
+  <param name="base_link_frame" value="base_link" />
+  <param name="world_frame" value="map" />
+  <param name="frequency" value="10" />
+
+  <!-- from the wheel encoders, only use v_x and v_yaw -->
+  <rosparam param="odom0_config">[false, false, false,
+                                false, false, false,
+                                true, false, false,
+                                false, false, false,
+                                false, false, false]</rosparam>
+  <!-- odom1 is from the GPS it gives x,y in map coordinates-->
+  <rosparam param="odom1_config">[true, true, false,
+                                false, false, false,
+                                false, false, false,
+                                false, false, false,
+                                false, false, false]</rosparam>
+  <!-- odom1 is from the wheel encoders and IMU it gives 
+      velocity and heading -->
+  <rosparam param="imu0_config">[false, false, false,
+                                false, false, true,
+                                false, false, false,
+                                false, false, false,
+                                false, false, false]</rosparam>
+  <rosparam param="initial_estimate_covariance">
+    [1e-9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 1e-9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 1e-9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 1e-9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 1e-9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 1e-9, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 1e-9, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 1e-9, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 1e-9, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 1e-9, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1e-9, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1e-9, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1e-9, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1e-9, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1e-9]
+  </rosparam>
+
+  <rosparam param="process_noise_covariance">
+    [0.005, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0.8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0.1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0.1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0.1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0.005, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0.1, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0.1, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 1.0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0.1, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.1, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.1, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.1, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.1, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.1]
+  </rosparam>
+
+  <remap from="/odometry/filtered" to="/$(arg name)/odom/ekf" />
+
+  </node>
+</launch>

@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<launch>
+	<include file="$(find super_cool_robot)/launch/static_tf.launch" />
+
+	<node pkg="super_cool_robot" type="truck_base_node" name="truck_base_node" output="screen"/>
+
+	<node pkg="super_cool_robot" type="twist_sim.py" name="twist_sim" />
+
+	<include file="$(find super_cool_robot)/launch/localization_odom.launch" />
+	<include file="$(find super_cool_robot)/launch/imu.launch" />
+</launch>
