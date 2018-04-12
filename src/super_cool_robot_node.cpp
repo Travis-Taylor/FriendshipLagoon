@@ -134,6 +134,7 @@ void stateMachineCallback(const ros::TimerEvent &e) {
       {
         if (goals_odom.empty()) {
           ROS_INFO("DRIVE_ODOM: No goals");
+		  cmd_vel.linear.x = 0;
           break;
         }
         float d, a, steering_error;
