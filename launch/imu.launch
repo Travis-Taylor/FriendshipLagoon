@@ -1,9 +1,12 @@
+<?xml version="1.0"?>
+
 <launch>
 
 <!-- imu -->
+	<arg name="imu_port" default="/dev/ttyUSB1"/>
 	<node pkg="microstrain_3dmgx2_imu" type="imu_node" name="microstrain_3dmgx2_node">
 		<param name="time_offset" value="-0.040" />
-		<param name="port"	type="string" value="/dev/ttyUSB1" />
+		<param name="port"	type="string" value="$(arg imu_port)" />
 		<param name="autostart" type="bool" value="true" />
 		<param name="frameid"	type="string" value="imu" />
 		<param name="autocalibrate" type="bool" value="true" />
