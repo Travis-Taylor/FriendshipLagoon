@@ -128,7 +128,7 @@ void stateMachineCallback(const ros::TimerEvent &e) {
     case States::IDLE:
       break;
     case States::GO:
-      cmd_vel.linear.x = 0.1;
+      cmd_vel.linear.x = 0.3;
       break;
     case States::DRIVE_ODOM:
       {
@@ -150,7 +150,7 @@ void stateMachineCallback(const ros::TimerEvent &e) {
         } else {
           ROS_INFO_STREAM("Driving to Odom goals "<<goals_odom.size() <<
               " left");
-          cmd_vel.linear.x = 0.1;
+          cmd_vel.linear.x = 0.3;
           cmd_vel.angular.z = limit(-steering_error,0.3);
         }
       }
