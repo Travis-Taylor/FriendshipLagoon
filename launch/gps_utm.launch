@@ -5,7 +5,10 @@
 <!-- gps -->
 	<arg name="gps_port" default="/dev/ttyUSB0"/>
 	<node pkg="nmea_navsat_driver" type="nmea_serial_driver" name="gpsfix">
-		<param name="port" value="$(arg gps_port)" />
+		<param name="~port:" value="$(arg gps_port)" />
+	</node>
+	<node pkg="gps_common" type="utm_odometry_node" name="utm">
+		<remap from="odom" to="odom_utm"/>
 	</node>
 
 </launch>

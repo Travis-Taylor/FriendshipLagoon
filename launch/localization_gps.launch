@@ -4,15 +4,14 @@
   give the odom/ekf transform
 -->
 <launch>
-	<arg name="name"/>
   <node pkg="robot_localization" 
     type="ekf_localization_node" 
-    name="$(arg name)_MAP">
+    name="ROBOT_MAP">
 
-  <param name="odom0" value="/$(arg name)/odom/filtered" />
-  <param name="odom1" value="/$(arg name)/odom/navsat" />
+  <param name="odom0" value="/odom/filtered" />
+  <param name="odom1" value="/fix" />
 
-  <param name="imu0" value="/$(arg name)/imu" />
+  <param name="imu0" value="/imu" />
   <param name="two_d_mode" value="true" />
   <param name="map_frame" value="map" />
   <param name="odom_frame" value="odom" />
@@ -75,7 +74,7 @@
      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.1]
   </rosparam>
 
-  <remap from="/odometry/filtered" to="/$(arg name)/odom/ekf" />
+  <remap from="/odometry/filtered" to="/odom/ekf" />
 
   </node>
 </launch>
