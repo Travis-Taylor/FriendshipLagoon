@@ -18,7 +18,8 @@ ros::Timer state_machine_timer;
 enum class States {
 	IDLE,
 	GO,
-	DRIVE_ODOM
+	DRIVE_ODOM,
+	DRIVE_UTM
 };
 
 States state = States::IDLE;
@@ -55,9 +56,7 @@ void gpsCallback(const sensor_msgs::NavSatFix::ConstPtr &fix) {
 	geodesy::fromMsg(geo, utm);
 	current_pose_gps.x = utm.easting;
 	current_pose_gps.y = utm.northing;
-	//goals_utm.push(goal);
-	
-	ROS_INFO_STREAM("current_gps " << current_pose_gps);
+	//ROS_INFO_STREAM("current_gps " << current_pose_gps);
 }
 
 void goalOdomCallback(const geometry_msgs::Pose2D::ConstPtr &goal) {
@@ -75,9 +74,9 @@ void cmdCallback(const std_msgs::String::ConstPtr &cmd) {
 }
 
 void distanceBetweenPoses(
-		const geometry_msgs::Pose2D &a,
-		const geometry_msgs::Pose2D &b, 
-		float &distance, float &angle) {
+	const geometry_msgs::Pose2D &a,
+	const geometry_msgs::Pose2D &b, 
+	float &distance, float &angle) {
 	float dx = a.x - b.x;
 	float dy = a.y - b.y;
 	distance = sqrt(dx*dx + dy*dy);
@@ -109,6 +108,11 @@ void stateMachineCallback(const ros::TimerEvent &e) {
 			if (state == States::IDLE) {
 				next_state = States::DRIVE_ODOM;
 				ROS_INFO_STREAM("Driving to Odom goals");
+			}
+		} else if(command == "DRIVE_UTM") {
+			if (state == States::IDLE) {
+				next_state = States::DRIVE_UTM;
+				ROS_INFO_STREAM("Driving to gps waypoint goals");
 			}
 		} else if(command == "RESET") {
 			while(!goals_odom.empty()) goals_odom.pop();
@@ -142,7 +146,7 @@ void stateMachineCallback(const ros::TimerEvent &e) {
 			{
 				if (goals_odom.empty()) {
 					ROS_INFO("DRIVE_ODOM: No goals");
-			cmd_vel.linear.x = 0;
+					cmd_vel.linear.x = 0;
 					break;
 				}
 				float d, a, steering_error;
@@ -163,6 +167,29 @@ void stateMachineCallback(const ros::TimerEvent &e) {
 				}
 			}
 			break;
+		case States::DRIVE_UTM: {
+			if (goals_utm.empty()) {
+				ROS_INFO("DRIVE_UTM: No goals");
+				cmd_vel.linear.x = 0;
+				break;
+			}
+			float d, a, steering_error;
+			distanceBetweenPoses(goals_utm.front(), current_pose_gps, d, a);
+			steering_error = angles::shortest_angular_distance(a,
+					current_pose_gps.theta);
+			ROS_INFO_STREAM("at" << current_pose_gps << " goto "<< 
+					goals_utm.front() <<
+					" relative=(" <<d<<","<<a<<") err="<<steering_error);
+			if(d < 0.1) {
+				ROS_INFO("DRIVE_ODOM: arrived");
+				goals_utm.pop();
+			} else {
+				ROS_INFO_STREAM("Driving to UTM goals "<<goals_utm.size() <<
+						" left");
+				cmd_vel.linear.x = 0.3;
+				cmd_vel.angular.z = limit(-steering_error,0.3);
+			}
+		}
 	}
 	vel_pub.publish(cmd_vel);	
 }
@@ -204,7 +231,6 @@ void loadKMLGoalFile(const std::string &goal_filename) {
 		ss >> lon >> lat >> alt;
 		if (!ss.fail()) {
 			geo = geodesy::toMsg(lat, lon, alt);
-	geographic_msgs::GeoPoint geo;
 			geodesy::fromMsg(geo, utm);
 			goal.x = utm.easting;
 			goal.y = utm.northing;
