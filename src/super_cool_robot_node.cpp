@@ -106,8 +106,7 @@ bool driveToGoal(geometry_msgs::Pose2D goal, geometry_msgs::Twist &cmd_vel)
 	distanceBetweenPoses(goal, current_pose_odom, d, a);
 	steering_error = angles::shortest_angular_distance(a,
 			current_pose_odom.theta);
-	ROS_INFO_STREAM("at" << current_pose_odom << " goto "<< 
-			goal
+	ROS_INFO_STREAM("at" << current_pose_odom << " goto "<< goal <<
 			" relative=(" <<d<<","<<a<<") err="<<steering_error);
 	if(d < 0.5) {
 		ROS_INFO("DRIVE_ODOM: arrived");
