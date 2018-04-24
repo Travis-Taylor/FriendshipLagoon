@@ -51,7 +51,7 @@ void odomCallback(const nav_msgs::Odometry::ConstPtr &odom) {
 }
 
 void gpsCallback(const sensor_msgs::NavSatFix::ConstPtr &fix) {
-	if (updateGPS) {
+	//if (updateGPS) {
 		geographic_msgs::GeoPoint geo;
 		geodesy::UTMPoint utm;
 		geo = geodesy::toMsg(fix->latitude, fix->longitude, fix->altitude);
@@ -59,7 +59,7 @@ void gpsCallback(const sensor_msgs::NavSatFix::ConstPtr &fix) {
 		current_pose_gps.x = utm.easting;
 		current_pose_gps.y = utm.northing;
 		updateGPS = 0;
-	}
+	//}
 //	ROS_INFO_STREAM("current_gps " << current_pose_gps);
 }
 
@@ -90,6 +90,36 @@ float limit(float v, float limit) {
 	if (v>limit) return limit;
 	if (v<-limit) return -limit;
 	return v;
+}
+
+geometry_msgs::Pose2D utmToOdom(geometry_msgs::Pose2D pose_utm) {
+  geometry_msgs::Pose2D pose_odom;
+  pose_odom.x = current_pose_gps.x - pose_utm.x + current_pose_odom.x; 
+  pose_odom.y = current_pose_gps.y - pose_utm.y + current_pose_odom.y; 
+  ROS_INFO_STREAM("utmToOdom: utm="<<pose_utm<<" current UTM="<<current_pose_gps<<" odom="<<pose_odom);
+  return pose_odom;
+}
+
+bool driveToGoal(geometry_msgs::Pose2D goal, geometry_msgs::Twist &cmd_vel) 
+{
+	float d, a, steering_error;
+	distanceBetweenPoses(goal, current_pose_odom, d, a);
+	steering_error = angles::shortest_angular_distance(a,
+			current_pose_odom.theta);
+	ROS_INFO_STREAM("at" << current_pose_odom << " goto "<< 
+			goal
+			" relative=(" <<d<<","<<a<<") err="<<steering_error);
+	if(d < 0.5) {
+		ROS_INFO("DRIVE_ODOM: arrived");
+		return true;
+	} else {
+		ROS_INFO_STREAM("Driving to Odom goals "<<goals_odom.size() <<
+				" left");
+		cmd_vel.linear.x = 0.5;
+		cmd_vel.angular.z = limit(-steering_error/2,0.3);
+		cmd_vel.angular.x = limit(steering_error/2,0.3);
+		return false;
+	}
 }
 
 void stateMachineCallback(const ros::TimerEvent &e) {
@@ -149,28 +179,15 @@ void stateMachineCallback(const ros::TimerEvent &e) {
 			break;
 		case States::DRIVE_ODOM:
 			{
-				if (goals_odom.empty()) {
-					ROS_INFO("DRIVE_ODOM: No goals");
-					cmd_vel.linear.x = 0;
-					break;
+			if (goals_odom.empty()) {
+				ROS_INFO("DRIVE_ODOM: No goals");
+				cmd_vel.linear.x = 0;
+				break;
 				}
-				float d, a, steering_error;
-				distanceBetweenPoses(goals_odom.front(), current_pose_odom, d, a);
-				steering_error = angles::shortest_angular_distance(a,
-						current_pose_odom.theta);
-				ROS_INFO_STREAM("at" << current_pose_odom << " goto "<< 
-						goals_odom.front() <<
-						" relative=(" <<d<<","<<a<<") err="<<steering_error);
-				if(d < 0.5) {
-					ROS_INFO("DRIVE_ODOM: arrived");
-					goals_odom.pop();
-				} else {
-					ROS_INFO_STREAM("Driving to Odom goals "<<goals_odom.size() <<
-							" left");
-					cmd_vel.linear.x = 0.5;
-					cmd_vel.angular.z = limit(-steering_error/2,0.3);
-					cmd_vel.angular.x = limit(steering_error/2,0.3);
-				}
+			if (driveToGoal(goals_odom.front(), cmd_vel))
+				{
+				goals_odom.pop();
+				} 
 			}
 			break;
 		case States::DRIVE_UTM: {
@@ -179,25 +196,11 @@ void stateMachineCallback(const ros::TimerEvent &e) {
 				cmd_vel.linear.x = 0;
 				break;
 			}
-			float d, a, steering_error;
-			distanceBetweenPoses(goals_utm.front(), current_pose_gps, d, a);
-			steering_error = angles::shortest_angular_distance(a,
-					current_pose_gps.theta);
-			ROS_INFO_STREAM("at" << current_pose_gps << " goto "<< 
-					goals_utm.front() <<
-					" relative=(" <<d<<","<<a<<") err="<<steering_error);
-			ROS_INFO_STREAM("x: " << current_pose_gps.x - goals_utm.front().x);
-			if(d < 0.5) {
-				ROS_INFO("DRIVE_ODOM: arrived");
+			if (driveToGoal(utmToOdom(goals_utm.front()), cmd_vel))
+			{
 				goals_utm.pop();
-				updateGPS = 1;
-			} else {
-				ROS_INFO_STREAM("Driving to UTM goals "<<goals_utm.size() <<
-						" left");
-				cmd_vel.linear.x = 0.5;
-				cmd_vel.angular.z = limit(-steering_error/2,0.3);
-				cmd_vel.angular.x = limit(steering_error/2,0.3);
-			}
+				//updateGPS = 1;
+			} 
 		}
 	}
 	vel_pub.publish(cmd_vel);	
