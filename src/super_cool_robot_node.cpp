@@ -10,6 +10,7 @@
 #include <queue>
 #include <geodesy/utm.h>
 void loadKMLGoalFile(const std::string &goal_filename);
+void loadUTMGoalFile(const std::string &goal_filename);
 void loadOdomGoalFile(const std::string &goal_filename);
 
 ros::Publisher vel_pub;
@@ -27,7 +28,7 @@ States next_state = States::IDLE;
 std::string command;
 geometry_msgs::Pose2D current_pose_odom;
 geometry_msgs::Pose2D current_pose_gps;
-int updateGPS = 0;
+geometry_msgs::Pose2D current_goal_utm;
 std::queue<geometry_msgs::Pose2D> goals_odom;
 std::queue<geometry_msgs::Pose2D> goals_utm;
 ros::Duration elapsed_time;
@@ -51,15 +52,12 @@ void odomCallback(const nav_msgs::Odometry::ConstPtr &odom) {
 }
 
 void gpsCallback(const sensor_msgs::NavSatFix::ConstPtr &fix) {
-	//if (updateGPS) {
-		geographic_msgs::GeoPoint geo;
-		geodesy::UTMPoint utm;
-		geo = geodesy::toMsg(fix->latitude, fix->longitude, fix->altitude);
-		geodesy::fromMsg(geo, utm);
-		current_pose_gps.x = utm.easting;
-		current_pose_gps.y = utm.northing;
-		updateGPS = 0;
-	//}
+	geographic_msgs::GeoPoint geo;
+	geodesy::UTMPoint utm;
+	geo = geodesy::toMsg(fix->latitude, fix->longitude, fix->altitude);
+	geodesy::fromMsg(geo, utm);
+	current_pose_gps.x = utm.easting;
+	current_pose_gps.y = utm.northing;
 //	ROS_INFO_STREAM("current_gps " << current_pose_gps);
 }
 
@@ -106,13 +104,14 @@ bool driveToGoal(geometry_msgs::Pose2D goal, geometry_msgs::Twist &cmd_vel)
 	distanceBetweenPoses(goal, current_pose_odom, d, a);
 	steering_error = angles::shortest_angular_distance(a,
 			current_pose_odom.theta);
-	ROS_INFO_STREAM("at" << current_pose_odom << " goto "<< goal <<
-			" relative=(" <<d<<","<<a<<") err="<<steering_error);
+//	ROS_INFO_STREAM("at" << current_pose_odom << " goto "<< goal <<
+//			" relative=(" <<d<<","<<a<<") err="<<steering_error);
+	ROS_INFO_STREAM(d << "m left to go, " << steering_error << " heading");
 	if(d < 0.5) {
 		ROS_INFO("DRIVE_ODOM: arrived");
 		return true;
 	} else {
-		ROS_INFO_STREAM("Driving to Odom goals "<<goals_odom.size() <<
+		ROS_INFO_STREAM("Driving to Odom goals "<<goals_utm.size() <<
 				" left");
 		cmd_vel.linear.x = 0.5;
 		cmd_vel.angular.z = limit(-steering_error/2,0.3);
@@ -146,7 +145,6 @@ void stateMachineCallback(const ros::TimerEvent &e) {
 			if (state == States::IDLE) {
 				next_state = States::DRIVE_UTM;
 				ROS_INFO_STREAM("Driving to gps waypoint goals");
-				updateGPS = 1;
 			}
 		} else if(command == "RESET") {
 			while(!goals_odom.empty()) goals_odom.pop();
@@ -155,6 +153,8 @@ void stateMachineCallback(const ros::TimerEvent &e) {
 		} else if(command == "CLEAR_GOALS") {
 			while(!goals_odom.empty()) goals_odom.pop();
 			while(!goals_utm.empty()) goals_utm.pop();
+		} else if(command.substr(0,8) == "LOAD_UTM") {
+			loadUTMGoalFile(command.substr(9));
 		} else if(command.substr(0,8) == "LOAD_KML") {
 			loadKMLGoalFile(command.substr(9));
 		} else if(command.substr(0,9) == "LOAD_ODOM") {
@@ -195,10 +195,10 @@ void stateMachineCallback(const ros::TimerEvent &e) {
 				cmd_vel.linear.x = 0;
 				break;
 			}
-			if (driveToGoal(utmToOdom(goals_utm.front()), cmd_vel))
+			if (driveToGoal(current_goal_utm, cmd_vel))
 			{
 				goals_utm.pop();
-				//updateGPS = 1;
+				current_goal_utm = utmToOdom(goals_utm.front());
 			} 
 		}
 	}
@@ -223,6 +223,33 @@ int main(int argc, char **argv) {
 	return 0;
 }
 
+void loadUTMGoalFile(const std::string &goal_filename) {
+	ROS_INFO_STREAM("Loading goal file: "<< goal_filename); 
+	std::ifstream inf(goal_filename);
+	if(!inf.good()) {
+		ROS_WARN_STREAM("Cannot read file " << goal_filename);
+		return;
+	}
+	std::string line;
+	geometry_msgs::Pose2D goal;
+	geographic_msgs::GeoPoint geo;
+	geodesy::UTMPoint utm;
+	while(std::getline(inf, line)) {
+		if(line.substr(0,10) != "<gx:coord>") continue;
+		std::stringstream ss(line.substr(10));
+		double lon_utm, lat_utm, alt;
+		ss >> lon_utm >> lat_utm >> alt;
+		if (!ss.fail()) {
+			goal.x = lat_utm;
+			goal.y = lon_utm;
+			goals_utm.push(goal);
+			ROS_INFO_STREAM(goal);
+		}
+	}
+	current_goal_utm = utmToOdom(goals_utm.front());
+	ROS_INFO_STREAM("Done Loading goal file: "<< goal_filename); 
+	return;
+}
 /*** load a kml file as gps goals */
 void loadKMLGoalFile(const std::string &goal_filename) {
 	ROS_INFO_STREAM("Loading goal file: "<< goal_filename); 
@@ -249,6 +276,7 @@ void loadKMLGoalFile(const std::string &goal_filename) {
 			ROS_INFO_STREAM(goal);
 		}
 	}
+	current_goal_utm = utmToOdom(goals_utm.front());
 	ROS_INFO_STREAM("Done Loading goal file: "<< goal_filename); 
 	return;
 }
