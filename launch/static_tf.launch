@@ -2,7 +2,7 @@
 <launch>
   <node name="imu_tf" pkg="tf2_ros" 
     type="static_transform_publisher" 
-    args="0.2 0.1 0.1 2.339 0 0 base_link imu" />
+    args="0.2 0.1 0.1 -2.336 0 0 base_link imu" />
   <node name="lr_tf" pkg="tf2_ros" 
     type="static_transform_publisher" 
     args="0.2 0.0 0.1 0 0 0 base_link laser" />
