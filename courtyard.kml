@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with BasicAirData GPS Logger for Android - ver. 2.1.10 -->
+<!-- Track 1 = 20 TrackPoints + 2 Placemarks -->
+<kml xmlns="http://www.opengis.net/kml/2.2">
+ <Document>
+  <name>Paths</name>
+  <description>GPS Logger: 20180422-140446
+  </description>
+  <Style id="TrackLineAndPoly">
+   <LineStyle>
+    <color>ff0000ff</color>
+    <width>4</width>
+   </LineStyle>
+   <PolyStyle>
+    <color>7f0000ff</color>
+   </PolyStyle>
+  </Style>
+  <Style id="Bookmark_Style">
+   <IconStyle>
+    <Icon> <href>http://maps.google.com/mapfiles/kml/shapes/placemark_circle_highlight.png</href> </Icon>
+   </IconStyle>
+  </Style>
+
+  <Placemark>
+   <name>Start</name>
+   <styleUrl>#Bookmark_Style</styleUrl>
+   <Point>
+    <altitudeMode>clampToGround</altitudeMode>
+    <coordinates>-106.62460704,35.08302086,1561.728</coordinates>
+    <extrude>1</extrude>
+   </Point>
+  </Placemark>
+
+  <Placemark>
+   <name>Stop</name>
+   <styleUrl>#Bookmark_Style</styleUrl>
+   <Point>
+    <altitudeMode>clampToGround</altitudeMode>
+    <coordinates>-106.62459400,35.08307147,1553.379</coordinates>
+    <extrude>1</extrude>
+   </Point>
+  </Placemark>
+
+  <Placemark>
+   <name>GPS Logger</name>
+   <description>Track: 20180422-140446 </description>
+   <styleUrl>#TrackLineAndPoly</styleUrl>
+   <LineString>
+    <extrude>0</extrude>
+    <tessellate>0</tessellate>
+    <altitudeMode>clampToGround</altitudeMode>
+    <coordinates>
+     -106.62460725,35.08302074,1561.814
+     -106.62461485,35.08302350,1561.745
+     -106.62462235,35.08302749,1560.652
+     -106.62462953,35.08303158,1559.070
+     -106.62463633,35.08302935,1560.561
+     -106.62464410,35.08302188,1559.044
+     -106.62465223,35.08301232,1558.410
+     -106.62466105,35.08300009,1557.825
+     -106.62467197,35.08298748,1556.956
+     -106.62467956,35.08298000,1555.049
+     -106.62465841,35.08297208,1555.549
+     -106.62464129,35.08297891,1555.237
+     -106.62462523,35.08298865,1555.717
+     -106.62461156,35.08299896,1554.749
+     -106.62460059,35.08300805,1554.962
+     -106.62459024,35.08301781,1554.807
+     -106.62458218,35.08303077,1554.275
+     -106.62458989,35.08304889,1553.310
+     -106.62459327,35.08305992,1553.408
+     -106.62459400,35.08307147,1553.379
+    </coordinates>
+   </LineString>
+  </Placemark>
+
+ </Document>
+</kml>

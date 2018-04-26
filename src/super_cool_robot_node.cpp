@@ -27,6 +27,7 @@ States next_state = States::IDLE;
 std::string command;
 geometry_msgs::Pose2D current_pose_odom;
 geometry_msgs::Pose2D current_pose_gps;
+geometry_msgs::Pose2D current_goal_utm;
 int updateGPS = 0;
 std::queue<geometry_msgs::Pose2D> goals_odom;
 std::queue<geometry_msgs::Pose2D> goals_utm;
@@ -195,9 +196,10 @@ void stateMachineCallback(const ros::TimerEvent &e) {
 				cmd_vel.linear.x = 0;
 				break;
 			}
-			if (driveToGoal(utmToOdom(goals_utm.front()), cmd_vel))
+			if (driveToGoal(utmToOdom(current_goal_utm, cmd_vel))
 			{
 				goals_utm.pop();
+				current_goal_utm = utmToOdom(goals_utm.front());
 				//updateGPS = 1;
 			} 
 		}
@@ -249,6 +251,7 @@ void loadKMLGoalFile(const std::string &goal_filename) {
 			ROS_INFO_STREAM(goal);
 		}
 	}
+	current_goal_utm = utmToOdom(goals_utm.front());
 	ROS_INFO_STREAM("Done Loading goal file: "<< goal_filename); 
 	return;
 }

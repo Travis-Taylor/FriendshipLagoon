@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2">
+<Document>
+<open>1</open>
+<visibility>1</visibility>
+<Style id="track">
+<LineStyle><color>ccffaa55</color>
+<width>5</width>
+</LineStyle>
+</Style>
+<Style id="track">
+<LineStyle><color>ccffaa55</color>
+<width>5</width>
+</LineStyle>
+</Style>
+<Style id="sh_grn-circle">
+<IconStyle><scale>1.0</scale>
+<Icon><href>http://maps.google.com/mapfiles/kml/paddle/grn-circle.png</href>
+</Icon>
+<hotSpot x="32" y="1" xunits="pixels" yunits="pixels" />
+</IconStyle>
+</Style>
+
+<Style id="sh_red-circle">
+<IconStyle><scale>1.0</scale>
+<Icon><href>http://maps.google.com/mapfiles/kml/paddle/red-circle.png</href>
+</Icon>
+<hotSpot x="32" y="1" xunits="pixels" yunits="pixels" />
+</IconStyle>
+</Style>
+
+<SchemaData id="schema">
+<gx:SimpleArrayField name="accuracy" type="float">
+<displayName>Accuracy</displayName>
+</gx:SimpleArrayField>
+<gx:SimpleArrayField name="speed" type="float">
+<displayName>Speed</displayName>
+</gx:SimpleArrayField>
+</SchemaData>
+<Placemark>
+<name>Loop1</name>
+<ExtendedData><Data name="Date">
+<value>Apr 24, 2018</value>
+</Data>
+<Data name="Time">
+<value>1:43:20 PM</value>
+</Data>
+<Data name="Duration">
+<value>1m 45s</value>
+</Data>
+<Data name="Distance">
+<value>0.09 mi</value>
+</Data>
+</ExtendedData>
+<styleUrl>#track</styleUrl>
+<gx:MultiTrack><altitudeMode>clampToGround</altitudeMode>
+<gx:interpolate>1</gx:interpolate>
+<gx:Track><altitudeMode>clampToGround</altitudeMode>
+<when>2018-04-24T19:41:35Z</when>
+<when>2018-04-24T19:41:37Z</when>
+<when>2018-04-24T19:41:38Z</when>
+<when>2018-04-24T19:41:46Z</when>
+<when>2018-04-24T19:41:48Z</when>
+<when>2018-04-24T19:41:52Z</when>
+<when>2018-04-24T19:41:55Z</when>
+<when>2018-04-24T19:41:58Z</when>
+<when>2018-04-24T19:42:02Z</when>
+<when>2018-04-24T19:42:06Z</when>
+<when>2018-04-24T19:42:09Z</when>
+<when>2018-04-24T19:42:12Z</when>
+<when>2018-04-24T19:42:16Z</when>
+<when>2018-04-24T19:42:20Z</when>
+<when>2018-04-24T19:42:23Z</when>
+<when>2018-04-24T19:42:26Z</when>
+<when>2018-04-24T19:42:29Z</when>
+<when>2018-04-24T19:42:32Z</when>
+<when>2018-04-24T19:42:35Z</when>
+<when>2018-04-24T19:42:39Z</when>
+<when>2018-04-24T19:42:42Z</when>
+<when>2018-04-24T19:42:46Z</when>
+<when>2018-04-24T19:42:51Z</when>
+<when>2018-04-24T19:42:54Z</when>
+<when>2018-04-24T19:42:57Z</when>
+<when>2018-04-24T19:43:00Z</when>
+<when>2018-04-24T19:43:04Z</when>
+<when>2018-04-24T19:43:08Z</when>
+<when>2018-04-24T19:43:21Z</when>
+<gx:coord>-106.623632172 35.084529072 1530</gx:coord>
+<gx:coord>-106.623714315 35.084453258 1522</gx:coord>
+<gx:coord>-106.623831075 35.084473584 1562</gx:coord>
+<gx:coord>-106.623758571 35.084474715 1546</gx:coord>
+<gx:coord>-106.623715237 35.084455479 1550</gx:coord>
+<gx:coord>-106.623667879 35.084443283 1546</gx:coord>
+<gx:coord>-106.623619935 35.084447726 1544</gx:coord>
+<gx:coord>-106.62356453 35.08444475 1544</gx:coord>
+<gx:coord>-106.623510718 35.084449821 1545</gx:coord>
+<gx:coord>-106.623465037 35.084459502 1545</gx:coord>
+<gx:coord>-106.623420781 35.084458035 1546</gx:coord>
+<gx:coord>-106.623373255 35.084469435 1546</gx:coord>
+<gx:coord>-106.623379793 35.084506148 1545</gx:coord>
+<gx:coord>-106.623428492 35.084530832 1545</gx:coord>
+<gx:coord>-106.623470653 35.08455032 1546</gx:coord>
+<gx:coord>-106.623506444 35.084574586 1546</gx:coord>
+<gx:coord>-106.623543156 35.084595121 1546</gx:coord>
+<gx:coord>-106.623580707 35.084617669 1546</gx:coord>
+<gx:coord>-106.623612894 35.08464403 1546</gx:coord>
+<gx:coord>-106.623663772 35.08467257 1546</gx:coord>
+<gx:coord>-106.62370082 35.08469474 1547</gx:coord>
+<gx:coord>-106.623743484 35.084714019 1546</gx:coord>
+<gx:coord>-106.623757733 35.084670139 1547</gx:coord>
+<gx:coord>-106.623750022 35.084633511 1547</gx:coord>
+<gx:coord>-106.623735521 35.084593194 1547</gx:coord>
+<gx:coord>-106.623725044 35.084550488 1546</gx:coord>
+<gx:coord>-106.623720182 35.084504932 1546</gx:coord>
+<gx:coord>-106.623708699 35.084469351 1546</gx:coord>
+<gx:coord>-106.623692187 35.08445967 1545</gx:coord>
+<ExtendedData><SchemaData schemaUrl="#schema">
+<gx:SimpleArrayData name="accuracy">
+<gx:value>17</gx:value>
+<gx:value>20</gx:value>
+<gx:value>18</gx:value>
+<gx:value>10</gx:value>
+<gx:value>7</gx:value>
+<gx:value>5</gx:value>
+<gx:value>4</gx:value>
+<gx:value>4</gx:value>
+<gx:value>5</gx:value>
+<gx:value>5</gx:value>
+<gx:value>6</gx:value>
+<gx:value>4</gx:value>
+<gx:value>4</gx:value>
+<gx:value>5</gx:value>
+<gx:value>4</gx:value>
+<gx:value>5</gx:value>
+<gx:value>5</gx:value>
+<gx:value>5</gx:value>
+<gx:value>6</gx:value>
+<gx:value>6</gx:value>
+<gx:value>6</gx:value>
+<gx:value>7</gx:value>
+<gx:value>7</gx:value>
+<gx:value>6</gx:value>
+<gx:value>6</gx:value>
+<gx:value>6</gx:value>
+<gx:value>7</gx:value>
+<gx:value>7</gx:value>
+<gx:value>5</gx:value>
+</gx:SimpleArrayData>
+<gx:SimpleArrayData name="speed">
+<gx:value>0.02</gx:value>
+<gx:value>0.05</gx:value>
+<gx:value>0.04</gx:value>
+<gx:value>0.22</gx:value>
+<gx:value>0.67</gx:value>
+<gx:value>1.11</gx:value>
+<gx:value>1.14</gx:value>
+<gx:value>1.19</gx:value>
+<gx:value>1.28</gx:value>
+<gx:value>1.51</gx:value>
+<gx:value>1.35</gx:value>
+<gx:value>1.26</gx:value>
+<gx:value>1.09</gx:value>
+<gx:value>1.47</gx:value>
+<gx:value>1.42</gx:value>
+<gx:value>1.52</gx:value>
+<gx:value>1.33</gx:value>
+<gx:value>1.28</gx:value>
+<gx:value>1.32</gx:value>
+<gx:value>1.22</gx:value>
+<gx:value>1.08</gx:value>
+<gx:value>0.8</gx:value>
+<gx:value>1.39</gx:value>
+<gx:value>1.21</gx:value>
+<gx:value>1.25</gx:value>
+<gx:value>1.32</gx:value>
+<gx:value>1.15</gx:value>
+<gx:value>0.94</gx:value>
+<gx:value>0</gx:value>
+</gx:SimpleArrayData>
+</SchemaData>
+</ExtendedData>
+</gx:Track>
+</gx:MultiTrack>
+</Placemark>
+</Document>
+</kml>
