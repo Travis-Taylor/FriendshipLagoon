@@ -3,7 +3,7 @@
 <launch>
 
 <!-- gps -->
-	<arg name="gps_port" default="/dev/ttyUSB0"/>
+	<arg name="gps_port" default="/dev/ttyUSB1"/>
 	<node pkg="nmea_navsat_driver" type="nmea_serial_driver" name="gpsfix">
 		<param name="~port:" value="$(arg gps_port)" />
 	</node>

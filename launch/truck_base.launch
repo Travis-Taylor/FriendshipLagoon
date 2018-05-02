@@ -7,10 +7,11 @@
 	<node pkg="super_cool_robot" type="twist_sim.py" name="twist_sim" />
 
 	<include file="$(find super_cool_robot)/launch/imu.launch" />
-		<param name="microstrain_3dmgx2_node/port" type="string" value="/dev/ttyUSB0"/>
+		<param name="microstrain_3dmgx2_node/port" type="string" value="/dev/ttyUSB1"/>
 	<include file="$(find super_cool_robot)/launch/gps.launch" />
-		<param name="gpsfix/port" type="string" value="/dev/ttyUSB1"/>
+		<param name="gpsfix/port" type="string" value="/dev/ttyUSB0"/>
 	<include file="$(find super_cool_robot)/launch/arduino.launch"/>
-	<include file="$(find super_cool_robot)/launch/localization_odom.launch" />
+		<param name="arduino_interface/port" type="string" value="/dev/ttyACM0"/>
+	<include file="$(find super_cool_robot)/launch/localization_odom.launch"/>
 	<node pkg="super_cool_robot" type="super_cool_robot_node" name="robot" output="screen" />
 </launch>

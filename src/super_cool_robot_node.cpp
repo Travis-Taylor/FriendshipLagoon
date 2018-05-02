@@ -28,7 +28,8 @@ States next_state = States::IDLE;
 std::string command;
 geometry_msgs::Pose2D current_pose_odom;
 geometry_msgs::Pose2D current_pose_gps;
-geometry_msgs::Pose2D current_goal_utm;
+geometry_msgs::Pose2D current_pose_utm;
+//geometry_msgs::Pose2D current_goal_utm;
 std::queue<geometry_msgs::Pose2D> goals_odom;
 std::queue<geometry_msgs::Pose2D> goals_utm;
 ros::Duration elapsed_time;
@@ -56,9 +57,13 @@ void gpsCallback(const sensor_msgs::NavSatFix::ConstPtr &fix) {
 	geodesy::UTMPoint utm;
 	geo = geodesy::toMsg(fix->latitude, fix->longitude, fix->altitude);
 	geodesy::fromMsg(geo, utm);
-	current_pose_gps.x = utm.easting;
-	current_pose_gps.y = utm.northing;
-//	ROS_INFO_STREAM("current_gps " << current_pose_gps);
+	current_pose_gps.x = utm.northing;
+	current_pose_gps.y = utm.easting;
+	//ROS_INFO_STREAM("current_gps " << current_pose_gps);
+}
+
+void utmCallback(const nav_msgs::Odometry::ConstPtr &odom) {
+	current_pose_utm = poseToPose2D(odom->pose.pose);
 }
 
 void goalOdomCallback(const geometry_msgs::Pose2D::ConstPtr &goal) {
@@ -91,11 +96,15 @@ float limit(float v, float limit) {
 }
 
 geometry_msgs::Pose2D utmToOdom(geometry_msgs::Pose2D pose_utm) {
-  geometry_msgs::Pose2D pose_odom;
-  pose_odom.x = current_pose_gps.x - pose_utm.x + current_pose_odom.x; 
-  pose_odom.y = current_pose_gps.y - pose_utm.y + current_pose_odom.y; 
-  ROS_INFO_STREAM("utmToOdom: utm="<<pose_utm<<" current UTM="<<current_pose_gps<<" odom="<<pose_odom);
-  return pose_odom;
+	geometry_msgs::Pose2D pose_odom;
+	float x_dist = -pose_utm.x + current_pose_gps.x;
+	float y_dist = pose_utm.y - current_pose_gps.y;
+	pose_odom.y = x_dist + current_pose_odom.y; 
+	pose_odom.x = y_dist + current_pose_odom.x; 
+	//pose_odom.x = current_pose_gps.x - pose_utm.x + current_pose_odom.x; 
+	//pose_odom.y = current_pose_gps.y - pose_utm.y + current_pose_odom.y; 
+	//ROS_INFO_STREAM("utmToOdom: x_dist="<<x_dist<<" y_dist="<<y_dist<<"current odom="<<current_pose_odom);
+	return pose_odom;
 }
 
 bool driveToGoal(geometry_msgs::Pose2D goal, geometry_msgs::Twist &cmd_vel) 
@@ -104,14 +113,14 @@ bool driveToGoal(geometry_msgs::Pose2D goal, geometry_msgs::Twist &cmd_vel)
 	distanceBetweenPoses(goal, current_pose_odom, d, a);
 	steering_error = angles::shortest_angular_distance(a,
 			current_pose_odom.theta);
-//	ROS_INFO_STREAM("at" << current_pose_odom << " goto "<< goal <<
-//			" relative=(" <<d<<","<<a<<") err="<<steering_error);
-	ROS_INFO_STREAM(d << "m left to go, " << steering_error << " heading");
+	ROS_INFO_STREAM("at" << current_pose_odom << " goto "<< goal <<
+			" relative=(" <<d<<","<<a<<") err="<<steering_error);
+//	ROS_INFO_STREAM(d << "m left to go, " << steering_error << " heading");
 	if(d < 0.5) {
-		ROS_INFO("DRIVE_ODOM: arrived");
+		ROS_INFO("DRIVE_UTM: arrived");
 		return true;
 	} else {
-		ROS_INFO_STREAM("Driving to Odom goals "<<goals_utm.size() <<
+		ROS_INFO_STREAM("Driving to utm goals "<<goals_utm.size() <<
 				" left");
 		cmd_vel.linear.x = 0.5;
 		cmd_vel.angular.z = limit(-steering_error/2,0.3);
@@ -172,6 +181,7 @@ void stateMachineCallback(const ros::TimerEvent &e) {
 	// one of these states need to set cmd_vel to something if you want to move
 	switch(state) {
 		case States::IDLE:
+			utmToOdom(goals_utm.front());
 			break;
 		case States::GO:
 			cmd_vel.linear.x = 0.3;
@@ -195,10 +205,9 @@ void stateMachineCallback(const ros::TimerEvent &e) {
 				cmd_vel.linear.x = 0;
 				break;
 			}
-			if (driveToGoal(current_goal_utm, cmd_vel))
+			if (driveToGoal(utmToOdom(goals_utm.front()), cmd_vel))
 			{
 				goals_utm.pop();
-				current_goal_utm = utmToOdom(goals_utm.front());
 			} 
 		}
 	}
@@ -209,6 +218,7 @@ int main(int argc, char **argv) {
 	ros::init(argc, argv, "truck_base_node");
 	ros::NodeHandle nh;
 	ros::Subscriber odom_sub = nh.subscribe("odometry/filtered", 1, odomCallback);
+	ros::Subscriber utm_sub = nh.subscribe("utm_odom", 1, utmCallback);
 	ros::Subscriber gps_sub = nh.subscribe("fix", 1, gpsCallback);
 	ros::Subscriber goal_odom_sub = nh.subscribe("goal_odom_cmd", 1,
 			goalOdomCallback);
@@ -246,7 +256,7 @@ void loadUTMGoalFile(const std::string &goal_filename) {
 			ROS_INFO_STREAM(goal);
 		}
 	}
-	current_goal_utm = utmToOdom(goals_utm.front());
+	//current_goal_utm = utmToOdom(goals_utm.front());
 	ROS_INFO_STREAM("Done Loading goal file: "<< goal_filename); 
 	return;
 }
@@ -270,13 +280,13 @@ void loadKMLGoalFile(const std::string &goal_filename) {
 		if (!ss.fail()) {
 			geo = geodesy::toMsg(lat, lon, alt);
 			geodesy::fromMsg(geo, utm);
-			goal.x = utm.easting;
-			goal.y = utm.northing;
+			goal.x = utm.northing;
+			goal.y = utm.easting;
 			goals_utm.push(goal);
 			ROS_INFO_STREAM(goal);
 		}
 	}
-	current_goal_utm = utmToOdom(goals_utm.front());
+	//current_goal_utm = utmToOdom(goals_utm.front());
 	ROS_INFO_STREAM("Done Loading goal file: "<< goal_filename); 
 	return;
 }

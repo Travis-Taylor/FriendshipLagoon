@@ -11,17 +11,20 @@ from geometry_msgs.msg import Twist, TwistWithCovarianceStamped
 pub = rospy.Publisher('twist', TwistWithCovarianceStamped, queue_size=1)
 
 def callback(data):
-    t = TwistWithCovarianceStamped()
-    t.twist.twist = data
-    t.header.frame_id = "base_link"
-    t.header.stamp = rospy.Time.now()
-    t.twist.covariance[0] = 0.1
-    pub.publish(t)    
+	t = TwistWithCovarianceStamped()
+	newData = Twist()
+	newData.linear.x = 2* data.linear.x
+	newData.angular = data.angular
+	t.twist.twist = newData
+	t.header.frame_id = "base_link"
+	t.header.stamp = rospy.Time.now()
+	t.twist.covariance[0] = 0.1
+	pub.publish(t)	
 
 def listener():
-    rospy.init_node('twist_sim', anonymous=True)
-    rospy.Subscriber("cmd_vel", Twist, callback)
-    rospy.spin()
+	rospy.init_node('twist_sim', anonymous=True)
+	rospy.Subscriber("cmd_vel", Twist, callback)
+	rospy.spin()
 
 if __name__ == '__main__':
-    listener()
+	listener()

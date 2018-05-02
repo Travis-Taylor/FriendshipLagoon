@@ -11,7 +11,7 @@ pub = rospy.Publisher('cmd_vel', Twist, queue_size=1)
 
 def callback(data):
   cmd = Twist()
-  cmd.linear.x = 0.1;
+  cmd.linear.x = 0.5;
   pub.publish(cmd)    
 
 if __name__ == '__main__':
